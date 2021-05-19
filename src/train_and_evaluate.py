@@ -185,7 +185,8 @@ class TreeEmbedding:  # the class save the tree
 
 def train_tree(input_batch, input_length, num_size_batch, 
                encoder, predict, generate, merge, encoder_optimizer, predict_optimizer, generate_optimizer,
-               merge_optimizer, output_lang, num_pos, num_ans, num_list, buffer_batch, buffer_batch_exp, epoch, model = 'fix', n_step = 50, mask_flag = False, english=False):
+               merge_optimizer, output_lang, num_pos, num_ans, num_list, buffer_batch, buffer_batch_exp,
+               epoch, model = 'fix', n_step = 50, mask_flag = False, english=False):
     # sequence mask for attention
     seq_mask = []
     max_len = max(input_length)

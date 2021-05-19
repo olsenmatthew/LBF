@@ -3,7 +3,6 @@ import json
 import copy
 import re
 
-
 PAD_token = 0
 
 
@@ -11,6 +10,7 @@ class Lang:
     """
     class to save the vocab and two dict: the word->index and index->word
     """
+
     def __init__(self):
         self.word2index = {}
         self.word2count = {}
@@ -18,7 +18,6 @@ class Lang:
         self.n_words = 0  # Count word tokens
         self.num_start = 0
 
-    
     def add_sen_to_vocab(self, sentence):  # add words of sentence to vocab
         for word in sentence:
             if re.search("N\d+|NUM|\d+", word):
@@ -38,7 +37,7 @@ class Lang:
                     self.word2index[word] = self.n_words
                     self.word2count[word] = 1
                     self.index2word.append(word)
-                    self.n_words += 1      
+                    self.n_words += 1
                 else:
                     self.word2count[word] += 1
 
@@ -76,7 +75,7 @@ class Lang:
             self.word2index[j] = i
 
     def build_output_lang(self, generate_num, copy_nums):  # build the output lang vocab and dict
-        self.index2word = ["PAD", "EOS"] + self.index2word + generate_num + ["N" + str(i) for i in range(copy_nums)] +\
+        self.index2word = ["PAD", "EOS"] + self.index2word + generate_num + ["N" + str(i) for i in range(copy_nums)] + \
                           ["SOS", "UNK"]
         self.n_words = len(self.index2word)
         for i, j in enumerate(self.index2word):
@@ -105,8 +104,9 @@ def load_raw_data(filename):  # load the json data to list(dict()) for MATH 23K
                 data_d["equation"] = data_d["equation"][:-5]
             data.append(data_d)
             js = ""
-    #data = sorted(data, key=lambda item: len(item["equation"]))
+    # data = sorted(data, key=lambda item: len(item["equation"]))
     return data
+
 
 # remove the superfluous brackets
 def remove_brackets(x):
@@ -140,16 +140,16 @@ def load_mawps_data(filename):  # load the json data to list(dict()) for MAWPS
 
         if "lQueryVars" in d and len(d["lQueryVars"]) == 1:
             v = d["lQueryVars"][0]
-            if v + "=" == x[:len(v)+1]:
-                xt = x[len(v)+1:]
+            if v + "=" == x[:len(v) + 1]:
+                xt = x[len(v) + 1:]
                 if len(set(xt) - set("0123456789.+-*/()")) == 0:
                     temp = d.copy()
                     temp["lEquations"] = xt
                     out_data.append(temp)
                     continue
 
-            if "=" + v == x[-len(v)-1:]:
-                xt = x[:-len(v)-1]
+            if "=" + v == x[-len(v) - 1:]:
+                xt = x[:-len(v) - 1]
                 if len(set(xt) - set("0123456789.+-*/()")) == 0:
                     temp = d.copy()
                     temp["lEquations"] = x
@@ -186,8 +186,8 @@ def load_roth_data(filename):  # load the json data to dict(dict()) for roth dat
 
         if "lQueryVars" in d and len(d["lQueryVars"]) == 1:
             v = d["lQueryVars"][0]
-            if v + "=" == x[:len(v)+1]:
-                xt = x[len(v)+1:]
+            if v + "=" == x[:len(v) + 1]:
+                xt = x[len(v) + 1:]
                 if len(set(xt) - set("0123456789.+-*/()")) == 0:
                     temp = d.copy()
                     temp["lEquations"] = remove_brackets(xt)
@@ -203,8 +203,8 @@ def load_roth_data(filename):  # load the json data to dict(dict()) for roth dat
                     out_data[temp["iIndex"]] = temp
                     continue
 
-            if "=" + v == x[-len(v)-1:]:
-                xt = x[:-len(v)-1]
+            if "=" + v == x[-len(v) - 1:]:
+                xt = x[:-len(v) - 1]
                 if len(set(xt) - set("0123456789.+-*/()")) == 0:
                     temp = d.copy()
                     temp["lEquations"] = remove_brackets(xt)
@@ -255,6 +255,7 @@ def load_roth_data(filename):  # load the json data to dict(dict()) for roth dat
                 continue
     return out_data
 
+
 # for testing equation
 # def out_equation(test, num_list):
 #     test_str = ""
@@ -285,8 +286,11 @@ def transfer_num(data):  # transfer num into "NUM"
 
     for d in data:
         nums = []
+        char_nums = []
         input_seq = []
+        char_seq = []
         seg = d["segmented_text"].strip().split(" ")
+        char_seg = d["segmented_chars"].strip().split(" ")
         answer = d["ans"]
         fractions = re.findall("\d+\(\d+\/\d+\)", answer)
         if len(fractions):
@@ -298,12 +302,22 @@ def transfer_num(data):  # transfer num into "NUM"
             pos = re.search(pattern, s)
             if pos and pos.start() == 0:
                 nums.append(s[pos.start(): pos.end()])
-                input_seq.append("NUM"+str(i))
+                input_seq.append("NUM" + str(i))
                 if pos.end() < len(s):
                     input_seq.append(s[pos.end():])
                 i += 1
             else:
                 input_seq.append(s)
+        for s in char_seg:
+            pos = re.search(pattern, s)
+            if pos and pos.start() == 0:
+                char_nums.append(s[pos.start(): pos.end()])
+                char_seq.append("NUM" + str(i))
+                if pos.end() < len(s):
+                    char_seq.append(s[pos.end():])
+                i += 1
+            else:
+                char_seq.append(s)
         nums_fraction = []
 
         for num in nums:
@@ -316,9 +330,15 @@ def transfer_num(data):  # transfer num into "NUM"
             if "NUM" in j:
                 num_pos.append(i)
         assert len(nums) == len(num_pos)
+
+        char_num_pos = []
+        for i, j in enumerate(char_seq):
+            if "NUM" in j:
+                char_num_pos.append(i)
+        assert len(nums) == len(num_pos)
         # pairs.append((input_seq, out_seq, nums, num_pos, d["ans"]))
-        
-        pairs.append((input_seq, nums, num_pos, answer, id2))
+
+        pairs.append((input_seq, nums, num_pos, answer, id2, char_seq, char_nums, char_num_pos))
     #     string = str(len(nums))
     #     string2 = str((len(out_seq)))
     #     if string not in count_dict.keys():
@@ -330,7 +350,7 @@ def transfer_num(data):  # transfer num into "NUM"
     #             count_dict[string][string2] = 1
     #         else:
     #             count_dict[string][string2] += 1
-        
+
     # print (count_dict)
 
     return pairs
@@ -391,7 +411,7 @@ def transfer_english_num(data):  # transfer num into "NUM"
                         generate_nums[temp_eq] = 0
                     eq_segs.append(temp_eq)
                 elif len(count_eq) == 1:
-                    eq_segs.append("N"+str(count_eq[0]))
+                    eq_segs.append("N" + str(count_eq[0]))
                 else:
                     eq_segs.append(temp_eq)
                 eq_segs.append(e)
@@ -520,7 +540,7 @@ def transfer_roth_num(data):  # transfer num into "NUM"
                         generate_nums[temp_eq] = 0
                     eq_segs.append(temp_eq)
                 elif len(count_eq) == 1:
-                    eq_segs.append("N"+str(count_eq[0]))
+                    eq_segs.append("N" + str(count_eq[0]))
                 else:
                     eq_segs.append(temp_eq)
                 eq_segs.append(e)
@@ -617,7 +637,7 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count):
     test_pairs = []
 
     output_lang.index2word.extend(['*', '-', '+', '/', '^', '1', '3.14'])
-    output_lang.word2index={'*': 0, '-': 1, '+':2, '/':3, '^':4, '1':5, '3.14':6}
+    output_lang.word2index = {'*': 0, '-': 1, '+': 2, '/': 3, '^': 4, '1': 5, '3.14': 6}
 
     print("Indexing words...")
     for pair in pairs_trained:
@@ -626,19 +646,19 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count):
             output_lang.add_sen_to_output(pair[0])
 
     input_lang.build_input_lang(trim_min_count)
-    
+
     output_lang.build_output_lang_for_tree()
-    print (output_lang.index2word)
-    print (len(input_lang.index2word))
+    print(output_lang.index2word)
+    print(len(input_lang.index2word))
     for pair in pairs_trained:
         input_cell = indexes_from_sentence(input_lang, pair[0])
-        train_pairs.append((input_cell, len(input_cell), 
+        train_pairs.append((input_cell, len(input_cell),
                             pair[1], pair[2], pair[3], pair[4]))
     print('Indexed %d words in input language, %d words in output' % (input_lang.n_words, output_lang.n_words))
     print('Number of training data %d' % (len(train_pairs)))
     for pair in pairs_tested:
         input_cell = indexes_from_sentence(input_lang, pair[0])
-        test_pairs.append((input_cell, len(input_cell), 
+        test_pairs.append((input_cell, len(input_cell),
                            pair[1], pair[2], pair[3], pair[4]))
     print('Number of testing data %d' % (len(test_pairs)))
     return input_lang, output_lang, train_pairs, test_pairs
@@ -746,7 +766,7 @@ def pad_seq(seq, seq_len, max_length):
 # prepare the batches
 def prepare_train_batch(pairs_to_batch, batch_size):
     pairs = copy.deepcopy(pairs_to_batch)
-    #random.shuffle(pairs)  # shuffle the pairs
+    # random.shuffle(pairs)  # shuffle the pairs
     pos = 0
     input_lengths = []
     nums_batches = []
@@ -757,14 +777,14 @@ def prepare_train_batch(pairs_to_batch, batch_size):
     num_ans_batches = []
     num_id_batches = []
     while pos + batch_size < len(pairs):
-        batches.append(pairs[pos:pos+batch_size])
+        batches.append(pairs[pos:pos + batch_size])
         pos += batch_size
     batches.append(pairs[pos:])
 
     for batch in batches:
         batch = sorted(batch, key=lambda tp: tp[1], reverse=True)
         input_length = []
-        for _, i, _,  _, _, _ in batch:
+        for _, i, _, _, _, _ in batch:
             input_length.append(i)
         input_lengths.append(input_length)
         input_len_max = input_length[0]
@@ -860,7 +880,7 @@ def prepare_de_train_batch(pairs_to_batch, batch_size, output_lang, rate, englis
     num_stack_batches = []  # save the num stack which
     num_pos_batches = []
     while pos + batch_size < len(pairs):
-        batches.append(pairs[pos:pos+batch_size])
+        batches.append(pairs[pos:pos + batch_size])
         pos += batch_size
     batches.append(pairs[pos:])
 
@@ -1199,5 +1219,3 @@ def allocation(ex_copy, rate):
                 return temp_res
         idx += 1
     return ex
-
-
