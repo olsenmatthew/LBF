@@ -183,7 +183,7 @@ class TreeEmbedding:  # the class save the tree
         self.terminal = terminal
 
 
-def train_tree(input_batch, input_length, num_size_batch, 
+def train_tree(input_batch, input_length, char_batch, char_length, num_size_batch,
                encoder, predict, generate, merge, encoder_optimizer, predict_optimizer, generate_optimizer,
                merge_optimizer, output_lang, num_pos, num_ans, num_list, buffer_batch, buffer_batch_exp,
                epoch, model = 'fix', n_step = 50, mask_flag = False, english=False):

@@ -633,28 +633,43 @@ def indexes_from_sentence(lang, sentence, tree=False):
 def prepare_data(pairs_trained, pairs_tested, trim_min_count):
     input_lang = Lang()
     output_lang = Lang()
+    char_input_lang = Lang()
+    char_output_lang = Lang()
     train_pairs = []
     test_pairs = []
 
     output_lang.index2word.extend(['*', '-', '+', '/', '^', '1', '3.14'])
     output_lang.word2index = {'*': 0, '-': 1, '+': 2, '/': 3, '^': 4, '1': 5, '3.14': 6}
 
+    char_output_lang.index2word.extend(['*', '-', '+', '/', '^', '1', '3.14'])
+    char_output_lang.word2index = {'*': 0, '-': 1, '+': 2, '/': 3, '^': 4, '1': 5, '3.14': 6}
+
     print("Indexing words...")
     for pair in pairs_trained:
         if pair[-1]:
             input_lang.add_sen_to_vocab(pair[0])
             output_lang.add_sen_to_output(pair[0])
+            char_input_lang.add_sen_to_vocab(pair[5])
+            char_output_lang.add_sen_to_output(pair[5])
 
     input_lang.build_input_lang(trim_min_count)
+    char_input_lang.build_input_lang(trim_min_count)
 
     output_lang.build_output_lang_for_tree()
+    char_output_lang.build_output_lang_for_tree()
+
     print(output_lang.index2word)
     print(len(input_lang.index2word))
+
+    print(char_output_lang.index2word)
+    print(len(char_input_lang.index2word))
+
     for pair in pairs_trained:
         input_cell = indexes_from_sentence(input_lang, pair[0])
         train_pairs.append((input_cell, len(input_cell),
-                            pair[1], pair[2], pair[3], pair[4]))
+                            pair[1], pair[2], pair[3], pair[4], pair[5], pair[6], pair[7]))
     print('Indexed %d words in input language, %d words in output' % (input_lang.n_words, output_lang.n_words))
+    print('Indexed %d words in Char input language, %d words in output' % (char_input_lang.n_words, char_output_lang.n_words))
     print('Number of training data %d' % (len(train_pairs)))
     for pair in pairs_tested:
         input_cell = indexes_from_sentence(input_lang, pair[0])
