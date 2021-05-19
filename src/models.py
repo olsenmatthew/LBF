@@ -159,7 +159,7 @@ class TreeAttn(nn.Module):
 
 
 class EncoderSeq(nn.Module):
-    def __init__(self, input_size, embedding_size, hidden_size, n_layers=2, dropout=0.5):
+    def __init__(self, input_size, embedding_size, hidden_size, n_layers=2, dropout=0.5, char_emb_dropout=0.5):
         super(EncoderSeq, self).__init__()
 
         self.input_size = input_size
@@ -169,22 +169,32 @@ class EncoderSeq(nn.Module):
         self.dropout = dropout
 
         self.embedding = nn.Embedding(input_size, embedding_size, padding_idx=0)
+        self.char_embeds = nn.Embedding(input_size, embedding_size, padding_idx=0)
         self.em_dropout = nn.Dropout(dropout)
+        self.char_em_dropout = nn.Dropout(char_emb_dropout)
         self.gru_pade = nn.GRU(embedding_size, hidden_size, n_layers, dropout=dropout, bidirectional=True)
+        self.gru_chars = nn.GRU(embedding_size, hidden_size, n_layers, dropout=dropout, bidirectional=True)
 
-    def forward(self, input_seqs, input_lengths, hidden=None):
+    def forward(self, input_seqs, char_seqs, input_lengths, char_lengths, hidden=None, char_hidden=None):
         # Note: we run this all at once (over multiple batches of multiple sequences)
         embedded = self.embedding(input_seqs)  # S x B x E
+        char_embeds = self.char_embeds(char_seqs)
         embedded = self.em_dropout(embedded)
+        char_embeds = self.char_em_dropout(char_embeds)
         packed = torch.nn.utils.rnn.pack_padded_sequence(embedded, input_lengths)
+        char_packed = torch.nn.utils.rnn.pack_padded_sequence(char_embeds, char_lengths)
         pade_hidden = hidden
+        char_pade_hidden = char_packed
         pade_outputs, pade_hidden = self.gru_pade(packed, pade_hidden)
+        char_outputs, char_hidden = self.gru_chars(char_packed, char_pade_hidden)
         pade_outputs, _ = torch.nn.utils.rnn.pad_packed_sequence(pade_outputs)
+        char_outputs, _ = torch.nn.utils.rnn.pad_packed_sequence(char_outputs)
 
         problem_output = pade_outputs[-1, :, :self.hidden_size] + pade_outputs[0, :, self.hidden_size:]
+        char_problem_output = char_outputs[-1, :, :self.hidden_size] + char_outputs[0, :, self.hidden_size:]
         pade_outputs = pade_outputs[:, :, :self.hidden_size] + pade_outputs[:, :, self.hidden_size:]  # S x B x H
-        return pade_outputs, problem_output
-
+        char_outputs = char_outputs[:, :, :self.hidden_size] + char_outputs[:, :, self.hidden_size:]
+        return pade_outputs, problem_output,char_outputs, char_problem_output
 
 class Prediction(nn.Module):
     # a seq2tree decoder with Problem aware dynamic encoding
