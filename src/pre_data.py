@@ -791,9 +791,12 @@ def prepare_train_batch(pairs_to_batch, batch_size):
     input_lengths = []
     char_input_lengths = []
     nums_batches = []
+    char_num_batches = []
     batches = []
     input_batches = []
+    char_batches = []
     num_pos_batches = []
+    char_num_size_batches = []
     num_size_batches = []
     num_ans_batches = []
     num_id_batches = []
@@ -816,20 +819,30 @@ def prepare_train_batch(pairs_to_batch, batch_size):
         input_batch = []
         char_batch = []
         num_batch = []
+        char_num_batch = []
         num_pos_batch = []
+        char_pos_batch = []
         num_size_batch = []
+        char_num_size_batch = []
         num_ans_batch = []
         num_id_batch = []
-        for i, li, num, num_pos, answer, id2 in batch:
+        for i, li, num, num_pos, answer, id2, char_i, char_li, char_num in batch:
             num_batch.append(num)
+            char_num_batch.append(char_num)
             input_batch.append(pad_seq(i, li, input_len_max))
+            char_batch.append(pad_seq(char_i, char_li, char_len_max))
             num_pos_batch.append(num_pos)
+            char_pos_batch.append(num_pos)
             num_size_batch.append(len(num_pos))
+            char_num_size_batch.append(len(num_pos))
             num_ans_batch.append(answer)
             num_id_batch.append(id2)
         input_batches.append(input_batch)
+        char_batches.append(char_batch)
         nums_batches.append(num_batch)
+        char_num_batches.append(char_num_batch)
         num_pos_batches.append(num_pos_batch)
+        char_num_size_batches.append(char_num_size_batch)
         num_size_batches.append(num_size_batch)
         num_ans_batches.append(num_ans_batch)
         num_id_batches.append(num_id_batch)
