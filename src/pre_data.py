@@ -808,6 +808,9 @@ def prepare_train_batch(pairs_to_batch, batch_size):
 
     for batch in batches:
         batch = sorted(batch, key=lambda tp: tp[1], reverse=True)
+        print(batch)
+        for x,y in enumerate(batch):
+            print(x, '->', y)
         input_length = []
         char_input_length = []
         for _, i, _, _, _, _, _, j, _ in batch:
