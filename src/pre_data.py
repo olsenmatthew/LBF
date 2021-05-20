@@ -843,7 +843,7 @@ def prepare_train_batch(pairs_to_batch, batch_size):
         char_num_size_batch = []
         num_ans_batch = []
         num_id_batch = []
-        for i, li, num, char_i, char_li, char_num, num_pos, answer, id2 in batch:
+        for i, li, num, num_pos, answer, id2, char_i, char_li, char_num in batch:
             num_batch.append(num)
             char_num_batch.append(char_num)
             input_batch.append(pad_seq(i, li, input_len_max))
