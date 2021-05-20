@@ -671,12 +671,17 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count):
     print('Indexed %d words in input language, %d words in output' % (input_lang.n_words, output_lang.n_words))
     print('Indexed %d words in Char input language, %d words in output' % (char_input_lang.n_words, char_output_lang.n_words))
     print('Number of training data %d' % (len(train_pairs)))
+
+    """======================================================
+    TODO: Left off here
+    ======================================================"""
+
     for pair in pairs_tested:
         input_cell = indexes_from_sentence(input_lang, pair[0])
         test_pairs.append((input_cell, len(input_cell),
                            pair[1], pair[2], pair[3], pair[4]))
     print('Number of testing data %d' % (len(test_pairs)))
-    return input_lang, output_lang, train_pairs, test_pairs
+    return input_lang, output_lang, char_input_lang, char_output_lang, train_pairs, test_pairs
 
 
 def prepare_de_data(pairs_trained, pairs_tested, trim_min_count, generate_nums, copy_nums, tree=False):
