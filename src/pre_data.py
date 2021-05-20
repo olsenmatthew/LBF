@@ -795,6 +795,7 @@ def prepare_train_batch(pairs_to_batch, batch_size):
     batches = []
     input_batches = []
     char_batches = []
+    char_pos_batches = []
     num_pos_batches = []
     char_num_size_batches = []
     num_size_batches = []
@@ -842,11 +843,14 @@ def prepare_train_batch(pairs_to_batch, batch_size):
         nums_batches.append(num_batch)
         char_num_batches.append(char_num_batch)
         num_pos_batches.append(num_pos_batch)
+        char_pos_batches.append(char_pos_batch)
         char_num_size_batches.append(char_num_size_batch)
         num_size_batches.append(num_size_batch)
         num_ans_batches.append(num_ans_batch)
         num_id_batches.append(num_id_batch)
-    return input_batches, input_lengths, nums_batches, num_pos_batches, num_size_batches, num_ans_batches, num_id_batches
+    return input_batches, input_lengths, nums_batches, num_pos_batches, num_size_batches,\
+           num_ans_batches, num_id_batches, char_batches, char_input_lengths,\
+           char_num_batches, char_pos_batches
 
 
 def get_num_stack(eq, output_lang, num_pos):
