@@ -850,13 +850,13 @@ def prepare_train_batch(pairs_to_batch, batch_size):
             print(i)
             print(li)
             print(input_len_max)
-            # input_batch.append(pad_seq(i, li, input_len_max))
+            input_batch.append(pad_seq(i, li, input_len_max))
             print("try char batch pad seq")
             print(char_i)
             print(char_li)
             print(char_len_max)
-            break 
-            # char_batch.append(pad_seq(char_i, char_li, char_len_max))
+            break
+            char_batch.append(pad_seq(char_i, char_li, char_len_max))
             print("passed char batch pad seq")
             num_pos_batch.append(num_pos)
             char_pos_batch.append(num_pos)
