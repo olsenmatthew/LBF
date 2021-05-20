@@ -789,6 +789,7 @@ def prepare_train_batch(pairs_to_batch, batch_size):
     # random.shuffle(pairs)  # shuffle the pairs
     pos = 0
     input_lengths = []
+    char_input_lengths = []
     nums_batches = []
     batches = []
     input_batches = []
@@ -804,11 +805,16 @@ def prepare_train_batch(pairs_to_batch, batch_size):
     for batch in batches:
         batch = sorted(batch, key=lambda tp: tp[1], reverse=True)
         input_length = []
-        for _, i, _, _, _, _ in batch:
+        char_input_length = []
+        for _, i, _, _, _, _, _, j, _ in batch:
             input_length.append(i)
+            char_input_length.append(i)
         input_lengths.append(input_length)
+        char_input_lengths.append(char_input_length)
         input_len_max = input_length[0]
+        char_len_max = char_input_length[0]
         input_batch = []
+        char_batch = []
         num_batch = []
         num_pos_batch = []
         num_size_batch = []
