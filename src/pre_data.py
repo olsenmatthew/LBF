@@ -666,8 +666,9 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count):
 
     for pair in pairs_trained:
         input_cell = indexes_from_sentence(input_lang, pair[0])
+        char_cell = indexes_from_sentence(char_input_lang, pair[5])
         train_pairs.append((input_cell, len(input_cell),
-                            pair[1], pair[2], pair[3], pair[4], pair[5], pair[6], pair[7]))
+                            pair[1], pair[2], pair[3], pair[4], char_cell, len(char_cell), pair[7]))
     print('Indexed %d words in input language, %d words in output' % (input_lang.n_words, output_lang.n_words))
     print('Indexed %d words in Char input language, %d words in output' % (char_input_lang.n_words, char_output_lang.n_words))
     print('Number of training data %d' % (len(train_pairs)))
