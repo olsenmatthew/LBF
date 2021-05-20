@@ -809,15 +809,18 @@ def prepare_train_batch(pairs_to_batch, batch_size):
     for batch in batches:
         batch = sorted(batch, key=lambda tp: tp[1], reverse=True)
 
-        for i, li, num, char_i, char_li, char_num, num_pos, answer, id2 in batch:
+        for i, li, num, num_pos, answer, id2, char_i, char_li, char_num in batch:
             print("i:", i)
             print("li: ", li)
             print("num: ", num)
-            print("char_i: ", char_i)
-            print("char_num: ", char_num)
+
             print("num_pos: ", num_pos)
             print("answer: ", answer)
             print("id2: ", id2)
+
+            print("char_i: ", char_i)
+            print("char_li: ", char_li)
+            print("char_num: ", char_num)
 
 
         input_length = []
