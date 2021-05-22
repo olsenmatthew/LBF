@@ -179,7 +179,6 @@ class ExprTree:
         #             right.parent = new_node
         #             left.parent = new_node
         #             values.append(new_node)
-
         for token in reversed(tokens):
             if token.symbol not in ["+", "-", "*", "/", "^", "**"]:
                 values.append(token)
@@ -218,7 +217,8 @@ class ExprTree:
         #     right.parent = new_node
         #     left.parent = new_node
         #     values.append(new_node)
-        
+        if len(values) == 0:
+            return []
         self.root = values.pop()
         self.root.res()
         return self.root
