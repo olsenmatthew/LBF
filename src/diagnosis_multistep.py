@@ -185,6 +185,8 @@ class ExprTree:
                 values.append(token)
             else:
                 op = token
+                if len(values) == 0:
+                    return []
                 left = values.pop()
                 right = values.pop()
                 new_node = Node (left, right, op)
