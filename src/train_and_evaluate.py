@@ -37,7 +37,7 @@ def prefix_to_infix(formula, length=None):
     #prev_op = None
     #PRIORITY = {"+": 0, "-": 0, "*": 1, "/": 1, "^": 1, "**": 1}
     for ch in reversed(formula):
-        if not ch in ["+", "-", "*", "/", "^", "**"]:
+        if not ch in ["+", "-", "*", "/", "^", "**", '~C', "~B"]:
             stack.append(ch)
         else:
             a = stack.pop()

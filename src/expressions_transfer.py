@@ -1,6 +1,9 @@
 from copy import deepcopy
 import re
+import math
 
+def binom(n, k):
+    return math.factorial(n) // math.factorial(k) // math.factorial(n - k)
 
 # An expression tree node
 class Et:
@@ -19,7 +22,7 @@ def construct_exp_tree(postfix):
     for char in postfix:
 
         # if operand, simply push into stack
-        if char not in ["+", "-", "*", "/", "^"]:
+        if char not in ["+", "-", "*", "/", "^", "~C", "~B"]:
             t = Et(char)
             stack.append(t)
         # Operator
@@ -43,7 +46,7 @@ def construct_exp_tree(postfix):
 def from_infix_to_postfix(expression):
     st = list()
     res = list()
-    priority = {"+": 0, "-": 0, "*": 1, "/": 1, "^": 2}
+    priority = {"+": 0, "-": 0, "*": 1, "/": 1, "^": 2, "~C": 3, "~B": 3}
     for e in expression:
         if e in ["(", "["]:
             st.append(e)
@@ -71,7 +74,7 @@ def from_infix_to_postfix(expression):
 def from_infix_to_prefix(expression):
     st = list()
     res = list()
-    priority = {"+": 0, "-": 0, "*": 1, "/": 1, "^": 2}
+    priority = {"+": 0, "-": 0, "*": 1, "/": 1, "^": 2, "~C": 3, "~B": 3}
     expression = deepcopy(expression)
     expression.reverse()
     for e in expression:
@@ -115,7 +118,7 @@ def out_expression_list(test, output_lang, num_list):
 
 def compute_postfix_expression(post_fix):
     st = list()
-    operators = ["+", "-", "^", "*", "/"]
+    operators = ["+", "-", "^", "*", "/", "~C", "~B"]
     for p in post_fix:
         if p not in operators:
             pos = re.search("\d+\(", p)
@@ -151,6 +154,17 @@ def compute_postfix_expression(post_fix):
             a = st.pop()
             b = st.pop()
             st.append(a ** b)
+        elif p == "~C" and len(st) > 1:
+            a = st.pop()
+            b = st.pop()
+            if a < 0 or b < 0:
+                st.append(0)
+            else:
+                st.append(math.comb(a, b))
+        elif p == "~B" and len(st) > 1:
+            a = st.pop()
+            b = st.pop()
+            st.append(binom(a, b))
         else:
             return None
     if len(st) == 1:
@@ -160,7 +174,7 @@ def compute_postfix_expression(post_fix):
 
 def compute_prefix_expression(pre_fix):
     st = list()
-    operators = ["+", "-", "^", "*", "/"]
+    operators = ["+", "-", "^", "*", "/", "~C", "~B"]
     pre_fix = deepcopy(pre_fix)
     pre_fix.reverse()
     for p in pre_fix:
@@ -200,6 +214,17 @@ def compute_prefix_expression(pre_fix):
             if float(eval(b)) != 2.0 or float(eval(b)) != 3.0:
                 return None
             st.append(a ** b)
+        elif p == "~C" and len(st) > 1:
+            a = st.pop()
+            b = st.pop()
+            if a < 0 or b < 0:
+                st.append(0)
+            else:
+                st.append(math.comb(a, b))
+        elif p == "~B" and len(st) > 1:
+            a = st.pop()
+            b = st.pop()
+            st.append(binom(a, b))
         else:
             return None
     if len(st) == 1:

@@ -616,8 +616,8 @@ def prepare_data(pairs_trained, pairs_tested, trim_min_count):
     train_pairs = []
     test_pairs = []
 
-    output_lang.index2word.extend(['*', '-', '+', '/', '^', '1', '3.14'])
-    output_lang.word2index={'*': 0, '-': 1, '+':2, '/':3, '^':4, '1':5, '3.14':6}
+    output_lang.index2word.extend(['*', '-', '+', '/', '^', '1', '3.14', "~C", "~B"])
+    output_lang.word2index={'*': 0, '-': 1, '+':2, '/':3, '^':4, '1':5, '3.14':6, "~C":7, "~B": 8}
 
     print("Indexing words...")
     for pair in pairs_trained:

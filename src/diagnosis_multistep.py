@@ -55,7 +55,9 @@ inverse_op_right = {
     '*': divide,
     '/': lambda target, left: divide(left, target),
     '^': log,
-    '**': log}
+    '**': log,
+    '~C': root,
+    '~B': root} #TODO: Needs and inverse for ~C and ~B
 
 class LeafNode:
     def __init__(self, symbol, all_prob, sym_list, num_start):
@@ -181,7 +183,7 @@ class ExprTree:
         #             values.append(new_node)
 
         for token in reversed(tokens):
-            if token.symbol not in ["+", "-", "*", "/", "^", "**"]:
+            if token.symbol not in ["+", "-", "*", "/", "^", "**", '~B', '~C']:
                 values.append(token)
             else:
                 op = token
