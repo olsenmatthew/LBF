@@ -76,6 +76,8 @@ def find_fix(pred, gt, all_prob, sym_list, num_start, n_step):
 
     tokens = list(zip(pred, all_prob))
     etree = ExprTree(sym_list, num_start)
+    print(sym_list)
+    print(tokens)
     etree.parse(tokens)
     fix = []
 
