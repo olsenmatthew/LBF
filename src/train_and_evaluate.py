@@ -78,6 +78,10 @@ def find_fix(pred, gt, all_prob, sym_list, num_start, n_step):
     etree = ExprTree(sym_list, num_start)
     print(sym_list)
     print(tokens)
+    if '~C' not in sym_list:
+        sym_list.append("~C")
+    if '~B' not in sym_list:
+        sym_list.append("~B")
     etree.parse(tokens)
     fix = []
 
