@@ -28,6 +28,9 @@ import re
 #     '*': divide,
 #     '/': lambda target, left: divide(left, target),
 #     '^': log}
+import math
+def binom(n, k):
+    return math.factorial(n) // math.factorial(k) // math.factorial(n - k)
 
 NAN_THRESHOLD = 10e7
 thres_nan = lambda x: x if abs(x) < NAN_THRESHOLD else float('nan')
@@ -38,6 +41,8 @@ divide = lambda x,y: thres_nan(x / y if y != 0 and y != 1 else float('nan'))
 exp = lambda x,y: thres_nan(x ** y if abs(x) < 1000 and abs(y) < 10 and x != 1 and y != 1 else float('nan'))
 root = lambda x,y: thres_nan(exp(x, divide(1, y)))
 log = lambda x,base: thres_nan(math.log(x, base) if base > 0 and base != 1 and x > 0 else float('nan'))
+combnk = lambda x,y: thres_nan(math.comb(x, y))
+binomnk = lambda x,y: thres_nan(binom(x, y))
 # NAN_THRESHOLD = 10e7
 # thres_nan = lambda x: x if abs(x) < NAN_THRESHOLD else 1e5
 # plus = lambda x,y: thres_nan(x + y)
@@ -47,8 +52,8 @@ log = lambda x,base: thres_nan(math.log(x, base) if base > 0 and base != 1 and x
 # exp = lambda x,y: thres_nan(x ** y if abs(x) < 1000 and y < 10 and x != 1 and y != 1 else 1e5)
 # root = lambda x,y: thres_nan(exp(x, divide(1, y)))
 # log = lambda x,base: thres_nan(math.log(x, base) if base > 0 and base != 1 and x > 0 else 1e5)
-symbol2semantic= {'+': plus, '-': minus, '*': times, '/': divide, '^': exp, '**': exp}
-inverse_op_left = {'+': minus, '-': plus, '*': divide, '/': times, '^': root, '**': root}
+symbol2semantic= {'+': plus, '-': minus, '*': times, '/': divide, '^': exp, '**': exp, '~C': combnk, '~B': binomnk}
+inverse_op_left = {'+': minus, '-': plus, '*': divide, '/': times, '^': root, '**': root, '~C': root, '~B': root} #TODO: Needs and inverse for ~C and ~B
 inverse_op_right = {
     '+': minus,
     '-': lambda target, left: minus(left, target),
@@ -274,7 +279,7 @@ class ExprTree:
 
     def compute_prefix_expression(self, pre_fix):
         st = list()
-        operators = ["+", "-", "**", "*", "/"]
+        operators = ["+", "-", "**", "*", "/", '~B', '~C']
         pre_fix.reverse()
         for p in pre_fix:
             if p not in operators:
@@ -309,6 +314,17 @@ class ExprTree:
                 if float(b) != 2.0 or float(b) != 3.0:
                     return None
                 st.append(a ** b)
+            elif p == "~C" and len(st) > 1:
+                a = st.pop()
+                b = st.pop()
+                if a < 0 or b < 0:
+                    st.append(0)
+                else:
+                    st.append(math.comb(a, b))
+            elif p == "~B" and len(st) > 1:
+                a = st.pop()
+                b = st.pop()
+                st.append(binom(a, b))
             else:
                 return None
         if len(st) == 1:
