@@ -187,6 +187,8 @@ class ExprTree:
                 if len(values) == 0:
                     return []
                 left = values.pop()
+                if len(values) == 0:
+                    return []
                 right = values.pop()
                 new_node = Node (left, right, op)
                 op.parent = new_node
